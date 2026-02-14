@@ -1,0 +1,9 @@
+stages:
+  - test
+
+tag-trigger-job:
+  stage: test
+  script:
+    - echo "Pipeline triggered by git tag!"
+  only:
+    - tags
