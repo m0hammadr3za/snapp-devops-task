@@ -20,7 +20,7 @@ build:
 
 deploy:
   stage: deploy
-  image: bitnami/kubectl:1.34
+  image: bitnami/kubectl:1.29
   script:
     - kubectl set image deployment/snapp-webapp snapp-webapp=$IMAGE_NAME:$CI_COMMIT_TAG -n snapp-project
     - kubectl rollout status deployment/snapp-webapp -n snapp-project
