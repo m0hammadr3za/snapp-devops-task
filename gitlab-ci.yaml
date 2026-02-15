@@ -3,7 +3,7 @@ stages:
   - deploy
 
 variables:
-  IMAGE_NAME: registry.gitlab.com/snapp-project/snapp-webapp
+  IMAGE_NAME: registry.snapp.com/snapp-project/snapp-task-local
 
 build:
   stage: build
