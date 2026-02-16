@@ -40,7 +40,7 @@ update-manifest:
   script:
     - git clone http://gitlab.snapp.com/snapp-devops/snapp-task-local.git repo
     - cd repo
-    - sed -i "s|image: $IMAGE_NAME:.*|image: $IMAGE_NAME:$CI_COMMIT_SHORT_SHA|" deployment.yaml
+    - sed -i "s#image: $IMAGE_NAME:.*#image: $IMAGE_NAME:$CI_COMMIT_SHORT_SHA#g" deployment.yaml
     - git add deployment.yaml
     - git commit -m "Update image to $CI_COMMIT_SHORT_SHA [skip ci]" || echo "No changes"
     - git push origin main
