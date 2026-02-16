@@ -47,3 +47,4 @@ deploy:
     - kubectl rollout status deployment/snapp-webapp -n snapp-project
   only:
     - tags
+    - main
