@@ -5,6 +5,7 @@ stages:
 variables:
   DOCKER_HOST: tcp://docker:2375
   DOCKER_TLS_CERTDIR: ""
+  DOCKER_DRIVER: overlay2
 
 build:
   stage: build
@@ -13,13 +14,17 @@ build:
     - name: docker:24.0.5-dind
       alias: docker
       command: ["--insecure-registry=registry.snapp.com"]
+  variables:
+    CI_REGISTRY: registry.snapp.com
+    CI_REGISTRY_IMAGE: registry.snapp.com/snapp-project/snapp-task-local
   before_script:
     - until docker info; do sleep 1; done
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.snapp.com
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
   script:
-    - docker build -t registry.snapp.com/snapp-project/snapp-task-local:$CI_COMMIT_SHORT_SHA .
-    - docker push registry.snapp.com/snapp-project/snapp-task-local:$CI_COMMIT_SHORT_SHA
+    - docker build --build-arg APP_VERSION=$CI_COMMIT_TAG -t $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG .
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
   only:
+    - tags
     - main
 
 deploy:
@@ -32,9 +37,11 @@ deploy:
     - mv kubectl /usr/local/bin/
   script:
     - kubectl config set-cluster local --server=https://20.20.20.162:6443 --insecure-skip-tls-verify=true
-    - kubectl config set-credentials gitlab-runner --token=$KUBE_TOKEN
+    - kubectl config set-credentials gitlab-runner --token="$KUBE_TOKEN"
     - kubectl config set-context default --cluster=local --user=gitlab-runner --namespace=snapp-project
     - kubectl config use-context default
-    - kubectl set image deployment/snapp-webapp snapp-webapp=registry.snapp.com/snapp-project/snapp-task-local:$CI_COMMIT_SHORT_SHA -n snapp-project
+    - kubectl set image deployment/snapp-webapp snapp-webapp=$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG -n snapp-project
+    - kubectl rollout status deployment/snapp-webapp -n snapp-project
   only:
+    - tags
     - main
