@@ -38,11 +38,13 @@ update-manifest:
     - git config --global user.email "gitlab-ci@snapp.com"
     - git config --global user.name "GitLab CI"
   script:
-    - git clone http://gitlab.snapp.com/snapp-devops/snapp-task-local.git repo
+    - REPO_URL="http://gitlab.snapp.com/snapp-devops/snapp-task-local.git"
+    - git clone $REPO_URL repo
     - cd repo
-    - sed -i "s#image: $IMAGE_NAME:.*#image: $IMAGE_NAME:$CI_COMMIT_SHORT_SHA#g" deployment.yaml
+    - 'NEW_IMAGE="$IMAGE_NAME:$CI_COMMIT_SHORT_SHA"'
+    - 'sed -i "s|image:.*|image: $NEW_IMAGE|" deployment.yaml'
     - git add deployment.yaml
-    - git commit -m "Update image to $CI_COMMIT_SHORT_SHA [skip ci]" || echo "No changes"
+    - 'git commit -m "Update image [skip ci]" || true'
     - git push origin main
   only:
     - main
