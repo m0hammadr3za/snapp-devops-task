@@ -29,7 +29,8 @@ build:
     - docker push $IMAGE_NAME:latest
   only:
     - main
-
+    - tags
+    
 update-manifest:
   stage: update-manifest
   image: alpine:3.18
@@ -39,13 +40,13 @@ update-manifest:
     - git config --global user.name "GitLab CI"
     - git config --global http.sslVerify false
   script:
-    - git clone http://gitlab.snapp.com/snapp-devops/snapp-task-local.git git-repo
+    - git clone http://root:$GIT_PUSH_TOKEN@gitlab.snapp.com/snapp-devops/snapp-task-local.git git-repo
     - cd git-repo
-    - git remote set-url origin https://oauth2:$DEPLOY_TOKEN@gitlab.snapp.com/snapp-devops/snapp-task-local.git
     - 'NEW_IMAGE="$IMAGE_NAME:$CI_COMMIT_SHORT_SHA"'
-    - 'sed -i "s|image:.*|image: $NEW_IMAGE|" k8s-manifests/deployment.yaml'
+    - 'sed -i "s|image:.*|image: $NEW_IMAGE|" snapp-chart/values.yaml'
     - git add k8s-manifests/deployment.yaml
     - 'git commit -m "Update image [skip ci]" || true'
-    - git push origin main
+    - git push http://root:$GIT_PUSH_TOKEN@gitlab.snapp.com/snapp-devops/snapp-task-local.git main
   only:
     - main
+    - tags
