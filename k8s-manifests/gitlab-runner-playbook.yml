@@ -1,0 +1,44 @@
+- name: Install GitLab Runner with Kubernetes executor
+  hosts: git_runner
+  become: yes
+  tasks:
+    - name: Install dependencies
+      apt:
+        name:
+          - curl
+          - gnupg
+          - lsb-release
+        state: present
+        update_cache: yes
+
+    - name: Add GitLab Runner official GPG key
+      ansible.builtin.apt_key:
+        url: https://packages.gitlab.com/gpg.key
+        state: present
+
+    - name: Add GitLab Runner repository
+      apt_repository:
+        repo: "deb https://packages.gitlab.com/runner/gitlab-runner/ubuntu/ jammy main"
+        state: present
+        filename: git-runner
+
+    - name: Install GitLab Runner
+      apt:
+        name: gitlab-runner
+        state: present
+        update_cache: yes
+
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Register GitLab Runner
+      command: >
+        gitlab-runner register --non-interactive
+        --url https://gitlab.com/
+        --registration-token <TOKEN>
+        --executor kubernetes
+        --kubernetes-namespace snapp-project
+        --description "snapp-webapp-runner"
+        --kubernetes-service-account gitlab-runner
+        --kubernetes-image "alpine:3.18"
