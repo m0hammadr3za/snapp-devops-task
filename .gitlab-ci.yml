@@ -1,3 +1,8 @@
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push"
+    - if: $CI_PIPELINE_SOURCE == "web"
+
 stages:
   - build
   - deploy
@@ -17,8 +22,8 @@ build:
     - until docker info; do sleep 1; done
     - docker login -u $DEPLOY_TOKEN_USER -p $DEPLOY_TOKEN_PASSWORD registry.snapp.com
   script:
-    - docker build -t registry.snapp.com/snapp-project/snapp-task-local:$CI_COMMIT_SHORT_SHA .
-    - docker push registry.snapp.com/snapp-project/snapp-task-local:$CI_COMMIT_SHORT_SHA
+    - docker build -t registry.snapp.com/snapp-devops/snapp-task-local:$CI_COMMIT_SHORT_SHA .
+    - docker push registry.snapp.com/snapp-devops/snapp-task-local:$CI_COMMIT_SHORT_SHA
 
 deploy:
   stage: deploy
@@ -33,4 +38,4 @@ deploy:
     - kubectl config set-credentials gitlab-runner --token=$KUBE_TOKEN
     - kubectl config set-context default --cluster=local --user=gitlab-runner --namespace=snapp-project
     - kubectl config use-context default
-    - kubectl set image deployment/snapp-webapp snapp-webapp=registry.snapp.com/snapp-project/snapp-task-local:$CI_COMMIT_SHORT_SHA -n snapp-project
+    - kubectl set image deployment/snapp-webapp snapp-webapp=registry.snapp.com/snapp-devops/snapp-task-local:$CI_COMMIT_SHORT_SHA -n snapp-project
