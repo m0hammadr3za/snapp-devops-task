@@ -13,16 +13,20 @@ build:
   services:
     - name: docker:dind
       command: ["--insecure-registry=registry.snapp.com"]
+  variables:
+    DOCKER_DRIVER: overlay2
   before_script:
-    - mkdir -p /etc/docker/certs.d/registry.snapp.com
-    - echo "$CI_REGISTRY_PASSWORD" | docker login registry.snapp.com -u "$CI_REGISTRY_USER" --password-stdin
+    - |
+      mkdir -p /etc/docker
+      echo '{"insecure-registries": ["registry.snapp.com"]}' > /etc/docker/daemon.json
+    - until docker info; do sleep 1; done
+    - echo "$CI_REGISTRY_PASSWORD" | docker login http://registry.snapp.com -u "$CI_REGISTRY_USER" --password-stdin
   script:
     - docker build --build-arg APP_VERSION=$CI_COMMIT_TAG -t $IMAGE_NAME:$CI_COMMIT_TAG .
     - docker push $IMAGE_NAME:$CI_COMMIT_TAG
   only:
     - tags
     - main
-    - master
 
 deploy:
   stage: deploy
@@ -42,4 +46,3 @@ deploy:
   only:
     - tags
     - main
-    - master
