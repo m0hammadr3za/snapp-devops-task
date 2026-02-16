@@ -24,9 +24,7 @@ build:
     - IMAGE_TAG="${CI_COMMIT_TAG:-${CI_COMMIT_SHORT_SHA}}"
     - docker build -t ${CI_REGISTRY_IMAGE}:${IMAGE_TAG} .
     - docker push ${CI_REGISTRY_IMAGE}:${IMAGE_TAG}
-  only:
-    - tags
-    - main
+
 
 deploy:
   stage: deploy
@@ -44,6 +42,3 @@ deploy:
     - kubectl config use-context default
     - kubectl set image deployment/snapp-webapp snapp-webapp=${CI_REGISTRY_IMAGE}:${IMAGE_TAG} -n snapp-project
     - kubectl rollout status deployment/snapp-webapp -n snapp-project
-  only:
-    - tags
-    - main
