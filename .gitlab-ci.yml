@@ -4,15 +4,15 @@ stages:
 
 variables:
   IMAGE_NAME: registry.snapp.com/snapp-project/snapp-task-local
-  DOCKER_HOST: tcp://localhost:2375
+  DOCKER_HOST: tcp://docker:2375
   DOCKER_TLS_CERTDIR: ""
   DOCKER_DRIVER: overlay2
 
 build:
   stage: build
-  image: docker:20.10.16
+  image: docker:24.0.5            # ← ورژن جدید
   services:
-    - name: docker:dind
+    - name: docker:24.0.5-dind    # ← ورژن مطابق
       alias: docker
       command: ["--insecure-registry=registry.snapp.com"]
   before_script:
