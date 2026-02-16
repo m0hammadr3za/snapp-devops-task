@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Chart.Name }}-config
+  labels:
+    app: {{ .Chart.Name }}
+data:
+  default.conf: |
+    server {
+        listen 80;
+
+        location / {
+            # Constructing the backend URL dynamically using Helm values
+            proxy_pass http://{{ .Values.backend.serviceName }}.{{ .Values.backend.namespace }}.svc.cluster.local:{{ .Values.backend.servicePort }};
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+    }
