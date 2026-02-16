@@ -15,7 +15,7 @@ build:
       command: ["--insecure-registry=registry.snapp.com"]
   before_script:
     - until docker info; do sleep 1; done
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.snapp.com
+    - docker login -u $DEPLOY_TOKEN_USER -p $DEPLOY_TOKEN_PASSWORD registry.snapp.com
   script:
     - docker build -t registry.snapp.com/snapp-project/snapp-task-local:$CI_COMMIT_SHORT_SHA .
     - docker push registry.snapp.com/snapp-project/snapp-task-local:$CI_COMMIT_SHORT_SHA
