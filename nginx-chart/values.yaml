@@ -1,0 +1,18 @@
+replicaCount: 2
+
+image:
+  repository: nginx
+  pullPolicy: IfNotPresent
+  tag: "stable-alpine"
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+
+# Configuration for the Backend Service
+# This helps the Nginx proxy know where to send traffic
+backend:
+  serviceName: snapp-webapp
+  servicePort: 8000
+  namespace: snapp-project
