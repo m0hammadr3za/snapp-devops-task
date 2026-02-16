@@ -39,11 +39,11 @@ update-manifest:
     - git config --global user.name "GitLab CI"
   script:
     - REPO_URL="http://gitlab.snapp.com/snapp-devops/snapp-task-local.git"
-    - git clone $REPO_URL k8s-manifests
-    - cd k8s-manifests
+    - git clone $REPO_URL git-repo
+    - cd git-repo
     - 'NEW_IMAGE="$IMAGE_NAME:$CI_COMMIT_SHORT_SHA"'
-    - 'sed -i "s|image:.*|image: $NEW_IMAGE|" deployment.yaml'
-    - git add deployment.yaml
+    - 'sed -i "s|image:.*|image: $NEW_IMAGE|" k8s-manifests/deployment.yaml'
+    - git add k8s-manifests/deployment.yaml
     - 'git commit -m "Update image [skip ci]" || true'
     - git push origin main
   only:
