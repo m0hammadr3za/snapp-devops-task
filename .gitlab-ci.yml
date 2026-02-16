@@ -39,8 +39,8 @@ update-manifest:
     - git config --global user.name "GitLab CI"
   script:
     - REPO_URL="http://gitlab.snapp.com/snapp-devops/snapp-task-local.git"
-    - git clone $REPO_URL repo
-    - cd repo
+    - git clone $REPO_URL k8s-manifests
+    - cd k8s-manifests
     - 'NEW_IMAGE="$IMAGE_NAME:$CI_COMMIT_SHORT_SHA"'
     - 'sed -i "s|image:.*|image: $NEW_IMAGE|" deployment.yaml'
     - git add deployment.yaml
