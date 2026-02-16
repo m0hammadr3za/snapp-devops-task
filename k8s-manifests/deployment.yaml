@@ -1,0 +1,43 @@
+# k8s/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: snapp-webapp
+  namespace: snapp-project
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: snapp-webapp
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: snapp-webapp
+    spec:
+      containers:
+      - name: webapp
+        image: registry.snapp.com/snapp-devops/snapp-task-local:latest
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            cpu: 50m
+          limits:
+            cpu: 200m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: snapp-webapp
+  namespace: snapp-project
+spec:
+  selector:
+    app: snapp-webapp
+  ports:
+  - port: 8000
+    targetPort: 8000
