@@ -1,18 +1,72 @@
+# Default values for snapp-webapp.
+
 replicaCount: 2
 
 image:
-  repository: nginx
+  repository: registry.snapp.com/snapp-devops/snapp-task-local
   pullPolicy: IfNotPresent
-  tag: "stable-alpine"
+  tag: "latest"
+
+# Application command line arguments
+args:
+  - "-text=Hello from Snapp WebApp"
+  - "-listen=:8000"
 
 service:
   type: ClusterIP
-  port: 80
-  targetPort: 80
+  port: 8000
+  targetPort: 8000
 
-# Configuration for the Backend Service
-# This helps the Nginx proxy know where to send traffic
-backend:
-  serviceName: snapp-webapp
-  servicePort: 8000
-  namespace: snapp-project
+ingress:
+  enabled: true
+  className: "nginx"
+  hosts:
+    - host: snapp-webapp.snapp.com
+      paths:
+        - path: /
+          pathType: Prefix
+
+resources:
+  requests:
+    cpu: "50m"
+  limits:
+    cpu: "200m"
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 50
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  capabilities:
+    drop:
+      - ALL
+
+# Liveness and Readiness Probes
+# Note: Since http-echo returns 200 for any path, we use root '/'
+livenessProbe:
+  httpGet:
+    path: /
+    port: 8000
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: 8000
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+serviceAccount:
+  create: true
+  name: "gitlab-runner"
+
+networkPolicy:
+  enabled: true
+  ingressNamespaces: 
+    - nginx-gateway
+    - snapp-project
