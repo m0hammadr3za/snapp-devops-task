@@ -44,7 +44,7 @@ update-manifest:
     - cd git-repo
     - 'NEW_IMAGE="$IMAGE_NAME:$CI_COMMIT_SHORT_SHA"'
     - 'sed -i "s|image:.*|image: $NEW_IMAGE|" snapp-chart/values.yaml'
-    - git add k8s-manifests/deployment.yaml
+    - git add snapp-chart/values.yaml
     - 'git commit -m "Update image [skip ci]" || true'
     - git push http://root:$GIT_PUSH_TOKEN@gitlab.snapp.com/snapp-devops/snapp-task-local.git main
   only:
