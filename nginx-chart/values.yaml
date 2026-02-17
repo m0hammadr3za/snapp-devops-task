@@ -16,3 +16,14 @@ backend:
   serviceName: snapp-webapp
   servicePort: 8000
   namespace: snapp-project
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+  hosts:
+    - host: snapp-webapp.snapp.com
+      paths:
+        - path: /
+          pathType: Prefix
