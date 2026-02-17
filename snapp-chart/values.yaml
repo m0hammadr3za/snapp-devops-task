@@ -1,12 +1,6 @@
-# Default values for snapp-webapp.
-
 replicaCount: 2
 
-<<<<<<< HEAD
 image:
-=======
-image: registry.snapp.com/snapp-devops/snapp-task-local:5103e35e
->>>>>>> 70c82ba62dd9325eded7b28159472b3b6657d809
   repository: http://registry.snapp.com/snapp-devops/snapp-task-local
   pullPolicy: IfNotPresent
   tag: 4ffe9990
