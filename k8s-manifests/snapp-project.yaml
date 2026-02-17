@@ -1,0 +1,137 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: snapp-project
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: snapp-webapp
+  namespace: snapp-project
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: snapp-webapp
+  template:
+    metadata:
+      labels:
+        app: snapp-webapp
+    spec:
+      containers:
+      - name: webapp
+        image: registry.snapp.com/snapp-devops/snapp-task-local
+        args:
+          - "-text=Hello from Snapp WebApp"
+          - "-listen=:8000"
+        ports:
+          - containerPort: 8000
+        resources:
+          requests:
+            cpu: "50m"
+          limits:
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: snapp-webapp
+  namespace: snapp-project
+spec:
+  type: ClusterIP
+  selector:
+    app: snapp-webapp
+  ports:
+    - port: 8000
+      targetPort: 8000
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: snapp-webapp-hpa
+  namespace: snapp-project
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: snapp-webapp
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: gitlab-runner
+  namespace: snapp-project
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: gitlab-runner-role
+  namespace: snapp-project
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "services", "configmaps", "secrets"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: gitlab-runner-binding
+  namespace: snapp-project
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: gitlab-runner-role
+subjects:
+  - kind: ServiceAccount
+    name: gitlab-runner
+    namespace: snapp-project
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: snapp-webapp-policy
+  namespace: snapp-project
+spec:
+  podSelector:
+    matchLabels:
+      app: snapp-webapp
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: load-generator
+      ports:
+        - protocol: TCP
+          port: 8000
+  egress:
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: 53
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: TCP
+          port: 443
