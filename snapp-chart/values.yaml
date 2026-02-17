@@ -2,10 +2,10 @@
 
 replicaCount: 2
 
-image: registry.snapp.com/snapp-devops/snapp-task-local:4ffe9990
+image:
   repository: http://registry.snapp.com/snapp-devops/snapp-task-local
   pullPolicy: IfNotPresent
-  #tag: "latest"
+  tag: 4ffe9990
 
 service:
   type: ClusterIP
