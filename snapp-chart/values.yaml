@@ -7,11 +7,6 @@ image:
   pullPolicy: IfNotPresent
   tag: "latest"
 
-# Application command line arguments
-args:
-  - "-text=Hello from Snapp WebApp"
-  - "-listen=:8000"
-
 service:
   type: ClusterIP
   port: 8000
