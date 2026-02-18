@@ -11,7 +11,7 @@ metadata:
   namespace: snapp-project
 rules:
   - apiGroups: [""]
-    resources: ["pods", "pods/log", "pods/exec", "secrets", "configmaps"]
+    resources: ["pods", "pods/log", "pods/exec","pods/attach", "secrets", "configmaps"]
     verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
   - apiGroups: ["apps"]
     resources: ["deployments"]
