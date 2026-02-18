@@ -54,6 +54,11 @@ readinessProbe:
   initialDelaySeconds: 5
   periodSeconds: 10
 
+gitlabRunner:
+  createServiceAccount: true
+  serviceAccountName: gitlab-runner
+  namespace: snapp-project
+
 serviceAccount:
   create: true
   name: "gitlab-runner"

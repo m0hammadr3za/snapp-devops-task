@@ -1,31 +1,59 @@
-{{- if .Values.serviceAccount.create -}}
+{{- if .Values.gitlabRunner.createServiceAccount }}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: {{ .Values.serviceAccount.name }}
+  name: {{ .Values.gitlabRunner.serviceAccountName }}
+  namespace: {{ .Values.gitlabRunner.namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: gitlab-runner-role
+  name: {{ .Values.gitlabRunner.serviceAccountName }}-role
+  namespace: {{ .Values.gitlabRunner.namespace }}
 rules:
   - apiGroups: [""]
-    resources: ["pods", "services", "configmaps", "secrets"]
-    verbs: ["get", "list", "watch", "create", "update", "patch"]
+    resources: ["pods", "pods/log", "pods/exec", "secrets", "configmaps"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
   - apiGroups: ["apps"]
     resources: ["deployments"]
-    verbs: ["get", "list", "watch", "create", "update", "patch"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ .Values.gitlabRunner.serviceAccountName }}-cluster-role
+rules:
+  - apiGroups: ["authorization.k8s.io"]
+    resources: ["selfsubjectaccessreviews", "selfsubjectrulesreviews"]
+    verbs: ["create"]
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["get", "list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: gitlab-runner-binding
+  name: {{ .Values.gitlabRunner.serviceAccountName }}-binding
+  namespace: {{ .Values.gitlabRunner.namespace }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: gitlab-runner-role
+  name: {{ .Values.gitlabRunner.serviceAccountName }}-role
 subjects:
   - kind: ServiceAccount
-    name: {{ .Values.serviceAccount.name }}
-    namespace: {{ .Release.Namespace }}
+    name: {{ .Values.gitlabRunner.serviceAccountName }}
+    namespace: {{ .Values.gitlabRunner.namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ .Values.gitlabRunner.serviceAccountName }}-cluster-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ .Values.gitlabRunner.serviceAccountName }}-cluster-role
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.gitlabRunner.serviceAccountName }}
+    namespace: {{ .Values.gitlabRunner.namespace }}
 {{- end }}
