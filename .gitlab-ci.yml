@@ -43,7 +43,6 @@ update-manifest:
     - git clone http://root:$GIT_PUSH_TOKEN@gitlab.snapp.com/snapp-devops/snapp-task-local.git git-repo
     - cd git-repo
     - 'NEW_IMAGE="$IMAGE_NAME:$CI_COMMIT_SHORT_SHA"'
-#    - 'sed -i "s|image:.*|image: $NEW_IMAGE|" snapp-chart/values.yaml'
     - 'sed -i "s|tag:.*|tag: \"$CI_COMMIT_SHORT_SHA\"|" snapp-chart/values.yaml'
     - git add snapp-chart/values.yaml
     - 'git commit -m "Update image [skip ci]" || true'
