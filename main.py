@@ -8,7 +8,7 @@ VERSION = os.getenv("APP_VERSION", "1.0.0")
 
 @app.get("/")
 def root():
-    return {"message": "Snapp DevOps Task - Version 1.2"}
+    return {"message": "Snapp DevOps Task - new version"}
 
 @app.get("/version")
 def version():
