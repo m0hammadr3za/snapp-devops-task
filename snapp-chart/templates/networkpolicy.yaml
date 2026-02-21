@@ -20,21 +20,21 @@ spec:
         - protocol: TCP
           port: {{ $.Values.service.targetPort }}
     {{- end }}
-    - from:
-        - podSelector:
-            matchLabels:
-              app: load-generator
-      ports:
-        - protocol: TCP
-          port: {{ .Values.service.targetPort }}
+#    - from:
+#        - podSelector:
+#            matchLabels:
+#              app: load-generator
+#      ports:
+#        - protocol: TCP
+#          port: {{ .Values.service.targetPort }}
   egress:
-    # DNS
     - to:
         - namespaceSelector: {}
       ports:
+        - protocol: UDP
+          port: 53
         - protocol: TCP
           port: 53
-    # HTTPS Outbound
     - to:
         - ipBlock:
             cidr: 0.0.0.0/0

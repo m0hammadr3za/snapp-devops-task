@@ -12,16 +12,25 @@ spec:
     - Egress
   ingress:
     - from:
-        - podSelector:
+        - namespaceSelector:
             matchLabels:
-              app: load-generator
+              kubernetes.io/metadata.name: nginx-gateway
       ports:
         - protocol: TCP
           port: 8000
+#    - from:
+#        - podSelector:
+#            matchLabels:
+#              app: load-generator
+#      ports:
+#        - protocol: TCP
+#          port: 8000
   egress:
     - to:
         - namespaceSelector: {}
       ports:
+        - protocol: UDP
+          port: 53
         - protocol: TCP
           port: 53
     - to:
