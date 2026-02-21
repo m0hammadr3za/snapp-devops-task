@@ -3,7 +3,7 @@ replicaCount: 2
 image:
   repository: registry.snapp.com/snapp-devops/snapp-task-local
   pullPolicy: IfNotPresent
-  tag: "f3939e75"
+  tag: "5e7bff51"
 
 service:
   type: ClusterIP

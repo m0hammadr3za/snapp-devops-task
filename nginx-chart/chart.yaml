@@ -1,5 +1,5 @@
 apiVersion: v2
-name: nginx-snapp-webapp
+name: snapp-webapp
 description: A Helm chart for Snapp Web Application
 type: application
 version: 0.1.0
