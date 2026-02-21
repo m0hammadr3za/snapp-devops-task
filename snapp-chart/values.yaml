@@ -19,10 +19,18 @@ ingress:
         - path: /
           pathType: Prefix
 
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 0
+    maxSurge: 1
+
 resources:
   requests:
-    cpu: "50m"
+    memory: 128Mi
+    cpu: "100m"
   limits:
+    memory: 256Mi
     cpu: "200m"
 
 autoscaling:
