@@ -19,11 +19,15 @@ build:
     - name: docker:24.0.5-dind
       alias: docker
       command: ["--insecure-registry=registry.snapp.com"]
+  variables:
+    DOCKER_BUILDKIT: "1"
   before_script:
     - until docker info; do sleep 1; done
     - echo "$CI_JOB_TOKEN" | docker login registry.snapp.com -u gitlab-ci-token --password-stdin
+    - docker buildx create --use --name mybuilder --driver docker-container
+    - docker buildx inspect --bootstrap
   script:
-    - docker build -t $IMAGE_NAME:$CI_COMMIT_SHORT_SHA .
+    - docker buildx build --load -t $IMAGE_NAME:$CI_COMMIT_SHORT_SHA .
     - docker push $IMAGE_NAME:$CI_COMMIT_SHORT_SHA
     - docker tag $IMAGE_NAME:$CI_COMMIT_SHORT_SHA $IMAGE_NAME:latest
     - docker push $IMAGE_NAME:latest
