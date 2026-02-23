@@ -26,15 +26,14 @@ spec:
       containers:
       - name: webapp
         image: registry.snapp.com/snapp-devops/snapp-task-local
-        args:
-          - "-text=Hello from Snapp WebApp"
-          - "-listen=:8000"
         ports:
           - containerPort: 8000
         resources:
           requests:
-            cpu: "50m"
+            memory: 128Mi
+            cpu: "100m"
           limits:
+            memory: 256Mi
             cpu: "200m"
 ---
 apiVersion: v1
@@ -83,11 +82,23 @@ metadata:
   namespace: snapp-project
 rules:
   - apiGroups: [""]
-    resources: ["pods", "services", "configmaps", "secrets"]
-    verbs: ["get", "list", "watch", "create", "update", "patch"]
+    resources: ["pods", "pods/log", "pods/exec","pods/attach", "secrets", "configmaps"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
   - apiGroups: ["apps"]
     resources: ["deployments"]
-    verbs: ["get", "list", "watch", "create", "update", "patch"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: gitlab-runner-cluster-role
+rules:
+  - apiGroups: ["authorization.k8s.io"]
+    resources: ["selfsubjectaccessreviews", "selfsubjectrulesreviews"]
+    verbs: ["create"]
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["get", "list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -98,6 +109,19 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
   name: gitlab-runner-role
+subjects:
+  - kind: ServiceAccount
+    name: gitlab-runner
+    namespace: snapp-project
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: gitlab-runner-cluster-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: gitlab-runner-cluster-role
 subjects:
   - kind: ServiceAccount
     name: gitlab-runner
@@ -117,9 +141,9 @@ spec:
     - Egress
   ingress:
     - from:
-        - podSelector:
+        - namespaceSelector:
             matchLabels:
-              app: load-generator
+              kubernetes.io/metadata.name: nginx-gateway
       ports:
         - protocol: TCP
           port: 8000
@@ -127,6 +151,8 @@ spec:
     - to:
         - namespaceSelector: {}
       ports:
+        - protocol: UDP
+          port: 53
         - protocol: TCP
           port: 53
     - to:

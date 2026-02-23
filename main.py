@@ -10,17 +10,13 @@ VERSION = os.getenv("APP_VERSION", "1.0.0")
 def root():
     return {"message": "Snapp DevOps Task New--Version"}
 
-@app.get("/version")
-def version():
-    return {"version": VERSION}
-
 @app.get("/health")
 def health():
     return {"status": "ok"}
 
-@app.get("/cpu-load")
-def cpu_load():
-    start = time.time()
-    while time.time() - start < 3:
-        pass
-    return {"status": "cpu stressed"}
+#@app.get("/cpu-load")
+#def cpu_load():
+#    start = time.time()
+#    while time.time() - start < 3:
+#        pass
+#    return {"status": "cpu stressed"}
