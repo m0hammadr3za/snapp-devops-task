@@ -50,14 +50,14 @@ securityContext:
 # Note: Since http-echo returns 200 for any path, we use root '/'
 livenessProbe:
   httpGet:
-    path: /
+    path: /health
     port: 8000
   initialDelaySeconds: 5
   periodSeconds: 10
 
 readinessProbe:
   httpGet:
-    path: /
+    path: /health
     port: 8000
   initialDelaySeconds: 5
   periodSeconds: 10
