@@ -14,9 +14,9 @@ def root():
 def health():
     return {"status": "ok"}
 
-#@app.get("/cpu-load")
-#def cpu_load():
-#    start = time.time()
-#    while time.time() - start < 3:
-#        pass
-#    return {"status": "cpu stressed"}
+@app.get("/cpu-load")
+def cpu_load():
+    start = time.time()
+    while time.time() - start < 3:
+        pass
+    return {"status": "cpu stressed"}
